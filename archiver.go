@@ -31,7 +31,23 @@ func RegisterFormat(name string, format Archiver) {
 	SupportedFormats[name] = format
 }
 
+func exists(fpath string) bool {
+	_, err := os.Stat(fpath)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
 func writeNewFile(fpath string, in io.Reader, fm os.FileMode) error {
+
+	if exists(fpath) {
+		return fmt.Errorf("%s: skipping because this exists as file:", fpath)
+	}
+
 	err := os.MkdirAll(filepath.Dir(fpath), 0755)
 	if err != nil {
 		return fmt.Errorf("%s: making directory for file: %v", fpath, err)
